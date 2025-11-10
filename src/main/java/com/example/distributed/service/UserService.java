@@ -1,34 +1,33 @@
 package com.example.distributed.service;
 
-
-
 import com.example.distributed.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import com.example.distributed.util.JwtTokenProvider;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtTokenProvider tokenProvider;
 
-    // 생성자 주입 (의존성 주입)
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, JwtTokenProvider tokenProvider) {
         this.userRepository = userRepository;
+        this.tokenProvider = tokenProvider;
     }
 
-
-    public boolean authenticate(String username, String password) {
+    public String authenticateAndGenerateToken(String username, String password) {
 
         String storedPassword = userRepository.findPasswordByUsername(username);
 
         if (storedPassword == null) {
-            return false;
+            return null;
         }
 
         if (storedPassword.equals(password)) {
-            System.out.println(username + "님이 로그인에 성공했습니다.");
-            return true;
+            System.out.println(username + "님이 로그인에 성공하고 토큰을 발급받았습니다.");
+            return tokenProvider.createToken(username);
         } else {
-            return false;
+            return null;
         }
     }
 }
