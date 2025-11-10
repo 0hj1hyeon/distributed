@@ -21,20 +21,19 @@ public class LoginApiController {
     @PostMapping("/api/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
 
-        boolean isAuthenticated = userService.authenticate(
+        String jwtToken = userService.authenticateAndGenerateToken(
                 request.getUsername(),
                 request.getPassword()
         );
 
-        if (isAuthenticated) {
+        if (jwtToken != null) {
             LoginResponse response = LoginResponse.builder()
                     .success(true)
-                    .message("로그인 성공")
-                    .token("")
+                    .message("로그인 성공 및 JWT 토큰 발급")
+                    .token(jwtToken)
                     .build();
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-
         } else {
             LoginResponse response = LoginResponse.builder()
                     .success(false)
