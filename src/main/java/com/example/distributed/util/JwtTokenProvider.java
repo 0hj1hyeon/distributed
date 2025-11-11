@@ -1,5 +1,4 @@
-package com.example.distributed.util; // 👈 패키지 이름은 맞춰주세요
-
+package com.example.distributed.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
