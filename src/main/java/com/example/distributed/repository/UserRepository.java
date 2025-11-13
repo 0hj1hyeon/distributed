@@ -1,22 +1,14 @@
 package com.example.distributed.repository;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.distributed.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public class UserRepository {
+import java.util.Optional;
 
-    private final Map<String, String> userDb = new HashMap<>();
+// 💡 JpaRepository를 상속받아 CRUD 기능을 자동으로 제공받음
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    public UserRepository(PasswordEncoder passwordEncoder) {
-        userDb.put("test", passwordEncoder.encode("1234"));
-        userDb.put("admin", passwordEncoder.encode("admin123"));
-    }
-
-    public String findPasswordByUsername(String username) {
-        return userDb.get(username);
-    }
+    // 💡 사용자 ID로 User 객체 전체를 조회하는 메서드 정의 (JPA 쿼리 메서드)
+    Optional<User> findByUsername(String username);
 }

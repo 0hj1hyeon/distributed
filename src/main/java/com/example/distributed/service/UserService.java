@@ -1,5 +1,6 @@
 package com.example.distributed.service;
 
+import com.example.distributed.domain.User;
 import com.example.distributed.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,13 @@ public class UserService {
 
     public String authenticateAndGenerateToken(String username, String password) {
 
-        String storedPassword = userRepository.findPasswordByUsername(username);
+        User user = userRepository.findByUsername(username)
+                .orElse(null);
 
-        if (storedPassword == null) {
-            return null; // 사용자 없음
+        if (user == null) {
+            return null;
         }
-
-        if (passwordEncoder.matches(password, storedPassword)) {
+        if (passwordEncoder.matches(password, user.getPassword())) {
             System.out.println(username + "님이 로그인에 성공하고 토큰을 발급받았습니다.");
             return tokenProvider.createToken(username);
         } else {
