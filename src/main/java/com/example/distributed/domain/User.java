@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user") // MySQL 테이블 이름 지정
+@Table(name = "user")
 @Getter
 @Setter
 @NoArgsConstructor
