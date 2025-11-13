@@ -18,13 +18,12 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Primary Key
+    private Long id;
 
-    private String username; // 사용자 ID (로그인 시 사용)
+    private String username;
 
-    private String password; // 암호화된 비밀번호
+    private String password;
 
-    // BCrypt 적용을 위해 초기 사용자를 미리 등록하는 편의 생성자
     public User(String username, String password) {
         this.username = username;
         this.password = password;
