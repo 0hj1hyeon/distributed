@@ -13,5 +13,6 @@ spring:
             - Path=/auth/**
           filters:
             - StripPrefix=1
+            - AuthorizationHeaderFilter
 jwt:
   secret: VGhpcyBpcyBhIHZlcnkgc3VwZXIgc2VjcmV0IGtleSBmb3IgZGlzdHJpYnV0ZWQgYXV0aC4=
