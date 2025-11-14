@@ -1,20 +1,12 @@
 package com.example.distributed.repository;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.example.distributed.domain.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public class UserRepository {
+import java.util.Optional;
 
-    private final Map<String, String> userDb = new HashMap<>();
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    public UserRepository() {
-        userDb.put("test", "1234");
-        userDb.put("admin", "admin123");
-    }
-
-    public String findPasswordByUsername(String username) {
-        return userDb.get(username);
-    }
+    Optional<User> findByUsername(String username);
 }
