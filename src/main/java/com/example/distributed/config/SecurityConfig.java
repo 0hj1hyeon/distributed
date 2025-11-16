@@ -1,19 +1,21 @@
 package com.example.distributed.config;
 
+// WebFlux 기반 Spring Security
 import com.example.distributed.filter.JwtAuthenticationFilter;
 import com.example.distributed.util.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository; // 세션 미사용
+import org.springframework.web.server.WebFilter; // WebFilter import 추가
+
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -28,23 +30,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http
                 .csrf((csrf) -> csrf.disable())
-                .sessionManagement((sessionManagement) ->
-                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
                 .httpBasic((httpBasic) -> httpBasic.disable())
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/login").permitAll()
-                        .anyRequest().authenticated()
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .authorizeExchange((authorize) -> authorize
+                        .pathMatchers("/login").permitAll()
+                        .anyExchange().authenticated()
                 );
-        http.addFilterBefore(
-                new JwtAuthenticationFilter(jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter.class
-        );
+
         return http.build();
     }
-
+    @Bean
+    public WebFilter jwtValidationWebFilter() {
+        return new JwtAuthenticationFilter(jwtTokenProvider);
+    }
 }
