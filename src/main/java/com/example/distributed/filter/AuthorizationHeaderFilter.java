@@ -17,6 +17,7 @@ import java.util.List;
 public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<AuthorizationHeaderFilter.Config> {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private static final String USER_ID_HEADER = "X-User-Id";
 
     public AuthorizationHeaderFilter(JwtTokenProvider jwtTokenProvider) {
         super(Config.class);
@@ -27,28 +28,29 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+            String path = request.getURI().getPath();
+
+            if (path != null && path.startsWith("/auth")) {
+                return chain.filter(exchange);
+            }
 
             if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return onError(exchange, "Authorization header missing", HttpStatus.UNAUTHORIZED);
             }
 
             List<String> authorizationHeaders = request.getHeaders().get(HttpHeaders.AUTHORIZATION);
-            if (authorizationHeaders == null || authorizationHeaders.isEmpty()) {
-                return onError(exchange, "Authorization header missing", HttpStatus.UNAUTHORIZED);
-            }
-
-            String authorizationHeader = authorizationHeaders.get(0);
-            String jwt = authorizationHeader.replace("Bearer ", "");
+            String jwt = authorizationHeaders.get(0).replace("Bearer ", "");
 
             if (!jwtTokenProvider.validateToken(jwt)) {
                 return onError(exchange, "JWT token is not valid or expired", HttpStatus.UNAUTHORIZED);
             }
 
             String userId = jwtTokenProvider.getUsername(jwt);
-
             ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("X-User-Id", userId)
+                    .header(USER_ID_HEADER, userId)
                     .build();
+
+            exchange.getResponse().getHeaders().add(USER_ID_HEADER, userId);
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
         };
