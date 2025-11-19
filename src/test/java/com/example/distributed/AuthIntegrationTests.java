@@ -38,13 +38,8 @@ public class AuthIntegrationTests {
     static class TestDataSetup {
         @Bean
         public User testUser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-
             String encodedPassword = passwordEncoder.encode(VALID_PASSWORD_PLAINTEXT);
-
-
             User testUser = new User(VALID_USER_ID, encodedPassword);
-
-
             return userRepository.save(testUser);
         }
     }
