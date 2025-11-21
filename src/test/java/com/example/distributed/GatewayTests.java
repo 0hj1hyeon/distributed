@@ -84,4 +84,15 @@ public class GatewayTests {
                 .exchange()
                 .expectStatus().is5xxServerError();
     }
+    @Test
+    @DisplayName("백엔드_서비스_다운_시_서킷_브레이커가_Fallback_경로로_전달해야_한다")
+    void 백엔드_서비스_다운_시_서킷_브레이커가_Fallback_경로로_전달해야_한다() {
+        webClient.get().uri(PROTECTED_SERVICE_URI)
+                .header("Authorization", "Bearer " + VALID_TOKEN)
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody()
+                .jsonPath("$.message").isEqualTo("현재 시스템 부하로 인해 요청을 처리할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+    }
+
 }
