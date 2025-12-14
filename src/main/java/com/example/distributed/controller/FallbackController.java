@@ -1,5 +1,4 @@
 package com.example.distributed.controller;
-// ... (필요한 import 생략)
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
