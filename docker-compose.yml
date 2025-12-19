@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysqldb:
+    image: mysql:8.0
+    container_name: mysqldb
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - ./db_data:/var/lib/mysql
+    # [추가됨 1] 스스로 건강 상태를 체크하는 로직
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: my-app
+    ports:
+      - "8000:8000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/${MYSQL_DATABASE}?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DB_PASSWORD}
+    depends_on:
+      mysqldb:
+        # [추가됨 2] 단순히 켜진 게 아니라, 'healthy' 상태가 될 때까지 대기
+        condition: service_healthy
