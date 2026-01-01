@@ -28,10 +28,9 @@ public class SecurityConfig {
                 .httpBasic((httpBasic) -> httpBasic.disable())
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange((authorize) -> authorize
-                        .pathMatchers("/login", "/auth/**").permitAll()
+                        .pathMatchers("/login", "/auth/**", "/info").permitAll()
                         .pathMatchers("/api/**").permitAll()
-                        .anyExchange().authenticated()
-                );
+                        .anyExchange().authenticated());
 
         return http.build();
     }
