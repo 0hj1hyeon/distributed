@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: spring-app
+  template:
+    metadata:
+      labels:
+        app: spring-app
+    spec:
+      containers:
+        - name: spring-app
+          image: my-app:1.0
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SERVER_PORT
+              value: "8000"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-user
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: root-password
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql-service:3306/my_database?useSSL=false&allowPublicKeyRetrieval=true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: spring-app
+  ports:
+    - port: 80
+      targetPort: 8000
